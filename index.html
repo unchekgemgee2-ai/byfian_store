@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByFian Store | Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; overflow-x: hidden; }
+        .premium-card { background: white; border-radius: 1.5rem; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: 0.2s; }
+        .premium-card:active { transform: scale(0.98); background: #f1f5f9; }
+        .hidden { display: none; }
+        .input-box { width: 100%; padding: 1rem; border-radius: 1.25rem; background: #f1f5f9; border: 2px solid transparent; outline: none; font-weight: 700; transition: 0.3s; }
+        .input-box:focus { border-color: #2563eb; background: white; }
+        .success-badge { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-size: 8px; font-weight: 800; }
+        
+        /* Notif Style */
+        #fake-notif { position: fixed; bottom: 30px; left: -350px; background: white; padding: 10px 15px; border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; z-index: 1000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #fake-notif.show { left: 15px; }
+    </style>
+</head>
+<body class="pb-28">
+
+    <div id="fake-notif">
+        <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-xs">F</div>
+        <div>
+            <p id="notif-user" class="text-[10px] font-black text-slate-800 leading-none">User</p>
+            <p id="notif-item" class="text-[8px] text-slate-500 font-bold mt-0.5">Berhasil Membeli Paket</p>
+        </div>
+    </div>
+
+    <div id="registerScreen" class="fixed inset-0 z-[110] bg-white flex items-center justify-center px-6">
+        <div class="w-full max-w-sm space-y-4 text-center">
+            <div class="inline-block p-5 bg-blue-600 rounded-3xl shadow-xl mb-2 text-white"><i class="fas fa-user-plus text-3xl"></i></div>
+            <h1 class="text-2xl font-black italic uppercase text-slate-800">DAFTAR <span class="text-blue-600">STORE</span></h1>
+            <input type="text" id="regName" placeholder="Nama Lengkap" class="input-box">
+            <input type="number" id="regPhone" placeholder="Nomor WA (628...)" class="input-box">
+            <input type="password" id="regPass" placeholder="Password (Min. 5 Karakter)" class="input-box">
+            <button onclick="handleRegister()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Buat Akun</button>
+            <p class="text-[10px] font-bold text-slate-400">Sudah punya akun? <span onclick="showLogin()" class="text-blue-600 underline cursor-pointer">Login</span></p>
+        </div>
+    </div>
+
+    <div id="authScreen" class="fixed inset-0 z-[100] bg-white hidden flex items-center justify-center px-6">
+        <div class="w-full max-w-sm text-center">
+            <h1 class="text-2xl font-black italic uppercase text-slate-800 mb-6">LOGIN <span class="text-blue-600">FIAN</span></h1>
+            <div class="space-y-3">
+                <input type="number" id="loginPhone" placeholder="Nomor WA" class="input-box text-center">
+                <input type="password" id="loginPass" placeholder="Password" class="input-box text-center">
+            </div>
+            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase mt-6 shadow-lg">Masuk</button>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden animate-fade-in">
+        <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b px-6 py-4 flex justify-between items-center">
+            <span class="font-black italic uppercase text-[12px] tracking-tighter">BYFIAN <span class="text-blue-600">STORE</span></span>
+            <button onclick="logout()" class="text-red-500 font-black text-[10px] bg-red-50 px-3 py-1 rounded-lg uppercase">Keluar</button>
+        </nav>
+
+        <div class="max-w-md mx-auto px-5 mt-6 space-y-6">
+            <div class="bg-blue-600 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Selamat Datang,</p>
+                    <h2 id="userNameDisplay" class="text-2xl font-black uppercase italic tracking-tighter mt-1">FIAN USER</h2>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        <p class="text-[10px] font-bold opacity-70 uppercase">Akun Aktif (Premium)</p>
+                    </div>
+                </div>
+                <i class="fas fa-shield-alt absolute -right-4 -bottom-4 text-8xl opacity-10 rotate-12"></i>
+            </div>
+
+            <div class="premium-card p-5">
+                <p class="text-[10px] font-black text-slate-800 uppercase mb-3 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-blue-600"></i> Alur Pemesanan
+                </p>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <p class="text-[8px] font-black text-blue-600 uppercase">Step 1</p>
+                        <p class="text-[9px] font-bold text-slate-500">Transfer ke Dana/Gopay/QRIS.</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <p class="text-[8px] font-black text-blue-600 uppercase">Step 2</p>
+                        <p class="text-[9px] font-bold text-slate-500">Pilih paket & kirim bukti TF.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-card p-5 text-center border-2 border-blue-50">
+                <div onclick="copyNumber()" class="mb-4 bg-slate-900 p-3 rounded-2xl text-white cursor-pointer active:scale-95 transition-all">
+                    <p class="text-[14px] font-black tracking-widest">0895393598810</p>
+                    <p class="text-[7px] font-bold text-blue-400 uppercase italic">Dana / Gopay A.N FIAN (Salin)</p>
+                </div>
+                <img src="https://i.ibb.co.com/3wC1Zpm/qris.jpg" class="w-40 mx-auto rounded-xl shadow-sm border p-1" onclick="zoomQR()">
+            </div>
+
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase italic mb-3 tracking-widest flex justify-between">
+                    <span>🔥 Transaksi Terkini</span>
+                    <span class="text-green-500">Live</span>
+                </p>
+                <div id="historyContainer" class="space-y-2"></div>
+            </div>
+
+            <div class="space-y-6 pb-20">
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">👝 MENU GB PANEL</p>
+                    <div id="panelList" class="space-y-2"></div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">💼 MENU SPECIAL</p>
+                    <div id="specialList" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/6285199067415" class="fixed bottom-8 right-5 w-14 h-14 bg-green-500 rounded-full shadow-2xl flex items-center justify-center text-white z-[1000] animate-bounce">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
+
+    <script>
+        const NO_ADMIN = "628219711269";
+        const NO_CHAT = "6285199067415";
+
+        const gbItems = [
+            { n: "PANEL 1 GB", p: "1.000" }, { n: "PANEL 2 GB", p: "2.000" }, { n: "PANEL 3 GB", p: "3.000" },
+            { n: "PANEL 4 GB", p: "4.000" }, { n: "PANEL 5 GB", p: "5.000" }, { n: "PANEL 6 GB", p: "6.000" },
+            { n: "PANEL 7 GB", p: "7.000" }, { n: "PANEL 8 GB", p: "8.000" }, { n: "PANEL 9 GB", p: "9.000" }, { n: "PANEL 10 GB", p: "10.000" }
+        ];
+
+        const specialItems = [
+            { n: "💥 UNLI", p: "5.000" }, { n: "💥 SELLER PANEL", p: "2.000" }, { n: "💥 PARTNER", p: "3.000" },
+            { n: "💥 ADMIN PANEL", p: "5.000" }, { n: "💥 OWNER", p: "7.000" }, { n: "💥 CEO", p: "7.500" },
+            { n: "💥 DEV", p: "8.400" }, { n: "💥 MEMBER VIP", p: "15.000" }
+        ];
+
+        window.onload = () => { checkAuth(); initLiveHistory(); };
+
+        function render() {
+            document.getElementById('panelList').innerHTML = gbItems.map(i => card(i.n, i.p)).join('');
+            document.getElementById('specialList').innerHTML = specialItems.map(i => card(i.n, i.p)).join('');
+        }
+
+        function card(n, p) {
+            return `<div class="premium-card p-4 flex justify-between items-center">
+                <div class="font-black text-[11px] uppercase text-slate-700">${n} <span class="text-blue-600 ml-2">Rp ${p}</span></div>
+                <button onclick="buy('${n}','${p}')" class="bg-blue-600 text-white text-[9px] font-black px-4 py-2 rounded-xl">BELI</button>
+            </div>`;
+        }
+
+        function buy(item, price) {
+            const u = JSON.parse(localStorage.getItem('activeSession'));
+            const jam = new Date().getHours();
+            let salam = jam < 11 ? "Pagi" : jam < 15 ? "Siang" : jam < 18 ? "Sore" : "Malam";
+            const msg = `Halo Admin FIAN, Selamat ${salam}!\n\nSaya ${u.name} ingin membeli:\n📦 *PRODUK:* ${item}\n💰 *HARGA:* Rp ${price}\n🚀 *AMBIL DI:* ${NO_CHAT}\n\n*SAYA SUDAH TRANSFER, BERIKUT BUKTINYA:*`;
+            window.location.href = `https://wa.me/${NO_ADMIN}?text=${encodeURIComponent(msg)}`;
+        }
+
+        function initLiveHistory() {
+            const container = document.getElementById('historyContainer');
+            const names = ["Bagas", "Rizky", "0812***", "0895***", "Fauzan", "Genta", "Siti", "Haikal"];
+            function add() {
+                const name = names[Math.floor(Math.random() * names.length)];
+                const item = [...gbItems, ...specialItems][Math.floor(Math.random() * 10)].n;
+                const row = document.createElement('div');
+                row.className = "premium-card p-3 flex justify-between items-center animate-fade-in mb-2";
+                row.innerHTML = `<div class="flex items-center gap-3">
+                    <div class="w-7 h-7 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-black">${name[0]}</div>
+                    <div><p class="text-[9px] font-black text-slate-800">${name}</p><p class="text-[8px] text-blue-600 font-bold uppercase">${item}</p></div>
+                </div><span class="success-badge">Sukses</span>`;
+                container.prepend(row);
+                if(container.children.length > 4) container.lastChild.remove();
+            }
+            for(let i=0; i<3; i++) add();
+            setInterval(add, 60000); // Update tiap 1 menit
+        }
+
+        // --- AUTH SYSTEM (MEMORY SAFE) ---
+        function handleRegister() {
+            const n = document.getElementById('regName').value, h = document.getElementById('regPhone').value, w = document.getElementById('regPass').value;
+            if(!n || !h || w.length < 5) return Swal.fire('Error', 'Data kurang / Pass min 5 char', 'error');
+            localStorage.setItem('userdb_'+h, JSON.stringify({name:n, phone:h, pass:w}));
+            Swal.fire('Sukses', 'Silakan Login', 'success'); showLogin();
+        }
+
+        function handleLogin() {
+            const h = document.getElementById('loginPhone').value, w = document.getElementById('loginPass').value;
+            const stored = localStorage.getItem('userdb_'+h);
+            if(stored) {
+                const u = JSON.parse(stored);
+                if(u.pass === w) {
+                    localStorage.setItem('isLogged', 'true');
+                    localStorage.setItem('activeSession', JSON.stringify(u));
+                    location.reload();
+                } else { Swal.fire('Gagal', 'Password Salah', 'error'); }
+            } else { Swal.fire('Gagal', 'Nomor tidak ada', 'error'); }
+        }
+
+        function checkAuth() {
+            const logged = localStorage.getItem('isLogged'), data = localStorage.getItem('activeSession');
+            if(logged === 'true' && data) {
+                const u = JSON.parse(data);
+                document.getElementById('registerScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.getElementById('userNameDisplay').innerText = u.name;
+                render();
+            } else { document.getElementById('registerScreen').classList.remove('hidden'); }
+        }
+
+        function copyNumber() { navigator.clipboard.writeText("0895393598810"); Swal.fire('Tersalin!', '', 'success'); }
+        function logout() { localStorage.removeItem('isLogged'); location.reload(); }
+        function showLogin() { document.getElementById('registerScreen').classList.add('hidden'); document.getElementById('authScreen').classList.remove('hidden'); }
+        function zoomQR() { Swal.fire({ imageUrl: "https://i.ibb.co.com/3wC1Zpm/qris.jpg", showConfirmButton: false }); }
+    </script>
+</body>
+              </html>
+  
